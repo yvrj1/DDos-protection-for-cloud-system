@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DDoS Simulation Interface</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-6">
+    <h1 class="text-3xl font-semibold text-center text-blue-600 mb-8">DDoS Simulation Interface</h1>
+
+    <div class="container mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-white shadow-md rounded-lg p-6 space-y-4">
+            <h2 class="text-xl font-semibold text-gray-800">Control Panel</h2>
+
+            <div class="space-y-2">
+                <label for="duration" class="block text-gray-700 text-sm font-bold mb-1">Simulation Duration (seconds):</label>
+                <input type="number" id="duration" value="20" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            </div>
+
+            <div class="space-y-2">
+                <label for="ip_source_url" class="block text-gray-700 text-sm font-bold mb-1">IP Source URL:</label>
+                <input type="text" id="ip_source_url" value="https://www.wiz.io/hubfs/Wiz-Research-злоумышленники-IP-адреса.txt" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            </div>
+
+            <div class="flex space-x-4">
+                <button id="start-simulation" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Start Simulation</button>
+                <button id="stop-simulation" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Stop Simulation</button>
+            </div>
+            <div id="simulation-status" class="mt-4 text-gray-600">Simulation Status: Idle</div>
+        </div>
+
+        <div class="bg-white shadow-md rounded-lg p-6 space-y-4">
+            <h2 class="text-xl font-semibold text-gray-800">Output and Logs</h2>
+            <textarea id="output" rows="10" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline overflow-y-auto"></textarea>
+             <div class="flex space-x-4">
+                <button id="display-blocked-ips" class="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Display Blocked IPs</button>
+                <button id="display-good-ips" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Display Good IPs</button>
+            </div>
+        </div>
+    </div>
+
+     <div class="mt-8 bg-white shadow-md rounded-lg p-6">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">Malware Signatures</h2>
+        <ul id="malware-signatures" class="list-disc list-inside text-gray-700">
+            <li>MaliciousBot/1.0</li>
+            <li>evil.php</li>
+            <li>../etc/passwd</li>
+            <li>;--SQLi--</li>
+        </ul>
+    </div>
+
+    <script>
+        const durationInput = document.getElementById('duration');
+        const ipSourceUrlInput = document.getElementById('ip_source_url');
+        const startSimulationButton = document.getElementById('start-simulation');
+        const stopSimulationButton = document.getElementById('stop-simulation');
+        const outputTextArea = document.getElementById('output');
+        const simulationStatus = document.getElementById('simulation-status');
+        const displayBlockedIpsButton = document.getElementById('display-blocked-ips');
+        const displayGoodIpsButton = document.getElementById('display-good-ips');
+
+        let simulationRunning = false;
+        let simulationInterval;
+
+        function appendOutput(message) {
+            outputTextArea.value += message + '\n';
+            outputTextArea.scrollTop = outputTextArea.scrollHeight; // Auto-scroll to bottom
+        }
+
+        function runSimulation() {
+            if (simulationRunning) {
+                appendOutput('Simulation is already running.');
+                return;
+            }
+
+            simulationRunning = true;
+            simulationStatus.textContent = 'Simulation Running...';
+            const duration = parseInt(durationInput.value);
+            const ipSourceUrl = ipSourceUrlInput.value;
+
+
+            if (!duration || duration <= 0) {
+                alert('Please enter a valid duration greater than 0.');
+                simulationRunning = false;
+                simulationStatus.textContent = 'Simulation Idle';
+                return;
+            }
+
+            // Disable controls during simulation
+            durationInput.disabled = true;
+            ipSourceUrlInput.disabled = true;
+            startSimulationButton.disabled = true;
+            stopSimulationButton.disabled = false;
+
+
+            appendOutput(`Starting simulation for ${duration} seconds...`);
+            appendOutput(`Using IP Source URL: ${ipSourceUrl}`);
+
+            // Simulate the Python script execution (replace with actual backend calls if needed)
+            simulationInterval = setInterval(() => {
+                // Simulate output from the Python scripts (replace with actual data)
+                appendOutput(`[SIMULATED] Time: ${new Date().toLocaleTimeString()}, Traffic generated...`);
+                appendOutput(`[SIMULATED] Time: ${new Date().toLocaleTimeString()}, Checking for threats...`);
+            }, 2000);
+
+            // Simulate the end of the simulation
+            setTimeout(() => {
+                clearInterval(simulationInterval);
+                simulationRunning = false;
+                simulationStatus.textContent = 'Simulation Finished.';
+                appendOutput('Simulation complete.');
+
+                // Re-enable controls
+                durationInput.disabled = false;
+                ipSourceUrlInput.disabled = false;
+                startSimulationButton.disabled = true; // keep start button disabled.
+                stopSimulationButton.disabled = true;
+            }, duration * 1000);
+        }
+
+        function stopSimulation() {
+            if (simulationRunning) {
+                clearInterval(simulationInterval);
+                simulationRunning = false;
+                simulationStatus.textContent = 'Simulation Stopped.';
+                appendOutput('Stopping simulation...');
+
+                durationInput.disabled = false;
+                ipSourceUrlInput.disabled = false;
+                startSimulationButton.disabled = false;
+                stopSimulationButton.disabled = true;
+            } else {
+                appendOutput('Simulation is not running.');
+            }
+        }
+
+
+
+        startSimulationButton.addEventListener('click', runSimulation);
+        stopSimulationButton.addEventListener('click', stopSimulation);
+        stopSimulationButton.disabled = true;
+
+
+        displayBlockedIpsButton.addEventListener('click', () => {
+            // In a real application, you would fetch this data from your backend.
+            const blockedIps = {
+                "203.0.113.50": "Blacklisted IP",
+                "192.168.1.200": "High Request Rate",
+                "203.0.113.10": "Blacklisted IP",
+            };
+            appendOutput('\n--- Blocked IPs ---');
+            if (Object.keys(blockedIps).length === 0) {
+                appendOutput('No IPs blocked.');
+            } else {
+                for (const ip in blockedIps) {
+                    appendOutput(`${ip}: ${blockedIps[ip]}`);
+                }
+            }
+        });
+
+        displayGoodIpsButton.addEventListener('click', () => {
+            // In a real application, you would fetch this data from your backend.
+            const goodIps = ["192.168.1.100", "10.0.0.25", "192.168.1.101"];
+            appendOutput('\n--- Good IPs ---');
+            if (goodIps.length === 0) {
+                appendOutput('No good IPs.');
+            } else {
+                goodIps.forEach(ip => appendOutput(ip));
+            }
+        });
+
+    </script>
+</body>
+</html>
